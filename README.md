@@ -6,7 +6,7 @@ Algoritmo desenvolvido para o TCC com título "Problema da árvore de Steiner em
 ======================
 Aluno: Calvin Rodrigues da Costa
 
-Orientadora: Profa. Dra. Mariá Cristina Vasconcelos
+Orientadora: Profa. Dra. Mariá Cristina Vasconcelos Nascimento Rosset
 
 Universidade: UNIFESP
 

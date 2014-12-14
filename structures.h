@@ -173,7 +173,7 @@ sol* add_node(sol* solution, typeEdge* chosen_One, igraph_vector_t* used_Nodes, 
         igraph_vector_remove(m_Nodes, pos);/**O(n)*/
         *size_M_Nodes -=1;
     } //O(2n)
-//    printf("Desaloca aresta\n");
+
     free(chosen_One);
 
 	return solution;
@@ -375,28 +375,23 @@ res* prune_tree(sol* solution, res* node_Root, igraph_vector_t* m_Group, igraph_
             bool_Check = igraph_vector_contains(m_Group ,aux->value);
             if(aux->children!=NULL)
             {
-//                printf("1\n");
-                aux = aux->children;
+				aux = aux->children;
             }else if(aux->brothers!=NULL)
             {
-//                printf("2\n");
                 if(bool_Check)
                 {
-//                    printf("3\n");
-                    aux = aux->brothers;
+
+					aux = aux->brothers;
                 }else
                 {
-//                    printf("4\n");
                     if(aux->prev_Bros!=NULL)
                     {
-//                        printf("5\n");
                         aux->prev_Bros->brothers = aux->brothers;
                         aux->brothers->prev_Bros = aux->prev_Bros;
                         second_Aux = aux;
                         aux = aux->brothers;
                     }else
                     {
-//                        printf("6\n");
                         aux->parent->children = aux->brothers;
                         aux->brothers->prev_Bros = NULL;
                         second_Aux = aux;
@@ -413,13 +408,11 @@ res* prune_tree(sol* solution, res* node_Root, igraph_vector_t* m_Group, igraph_
             {
                 if(aux->prev_Bros == NULL)
                 {
-//                    printf("7\n");
                     aux->parent->children = NULL;
                     second_Aux = aux;
                     aux = aux->parent;
                 }else
                 {
-//                    printf("8\n");
                     aux->prev_Bros->brothers = NULL;
                     second_Aux = aux;
                     execute = 1;
@@ -428,21 +421,17 @@ res* prune_tree(sol* solution, res* node_Root, igraph_vector_t* m_Group, igraph_
                     {
 /*                        if(aux->brothers!=NULL)
                         {
-//                            printf("9\n");
                             aux = aux->brothers;
                         }else */if(aux->parent != node_Root && aux->parent->brothers != NULL)
                         {
-//                            printf("10\n");
                             aux = aux->parent->brothers;
                             execute = 0;
                         }else if(aux->parent == node_Root)
                         {
-//                            printf("11\n");
                             aux = aux->parent;
                             execute = 0;
                         }else
                         {
-//                            printf("16\n");
                             aux = aux->parent;
                         }
                     }
@@ -463,22 +452,18 @@ res* prune_tree(sol* solution, res* node_Root, igraph_vector_t* m_Group, igraph_
                 {
                  /*   if(aux->brothers!=NULL)
                     {
-//                        printf("12\n");
                         aux = aux->brothers;
                     }else */if(aux->parent != node_Root && aux->parent->brothers != NULL)
                     {
-//                        printf("13\n");
                         aux = aux->parent->brothers;
                         execute = 0;
                     }else if(aux->parent == node_Root)
                     {
-//                        printf("14\n");
                         aux = aux->parent;
                         execute = 0;
                     }
                     else
                     {
-//                        printf("15\n");
                         aux = aux->parent;
                     }
                 }
@@ -539,28 +524,22 @@ void change_cost(sol* solution, res* root, float* cost_Nodes)
 
     while(aux!=root)
     {
-//        printf(".\n");
         if(aux->children != NULL)
         {
-//            solution->total_Weight -= aux->cost;
             aux->cost = aux->parent->cost + aux->weight;
-//            solution->total_Weight += aux->cost;
             if(cost_Nodes!=NULL){cost_Nodes[aux->value-1] = aux->cost;}
             aux = aux->children;
         }else if(aux->brothers!=NULL)
         {
-//            solution->total_Weight -= aux->cost;
             aux->cost = aux->parent->cost + aux->weight;
-//            solution->total_Weight += aux->cost;
             if(cost_Nodes!=NULL){cost_Nodes[aux->value-1] = aux->cost;}
             aux = aux->brothers;
         }else
         {
-//            solution->total_Weight -= aux->cost;
             aux->cost = aux->parent->cost + aux->weight;
             if(cost_Nodes!=NULL){cost_Nodes[aux->value-1] = aux->cost;}
-//            solution->total_Weight += aux->cost;
             execute = 1;
+
             while(execute && aux!=root)
             {
                /* if(aux->brothers!=NULL){aux = aux->brothers;}

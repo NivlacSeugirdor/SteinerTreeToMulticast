@@ -36,7 +36,6 @@ sol* PRIM_SG(typeNode* graph, int size_Graph, igraph_vector_t* m_Group, float n_
 	int i, bool_Change = 0, size_Changed = 0;
     float *cost_Nodes;
     res* target_Node, *parent;
-//    printf("Aloca cost_Nodes\n");
 
 	igraph_vector_t changed;
 	igraph_vector_init(&changed, 0);
@@ -48,7 +47,6 @@ sol* PRIM_SG(typeNode* graph, int size_Graph, igraph_vector_t* m_Group, float n_
 	igraph_vector_t m_Nodes;
 	typeEdge* chosen_One = NULL;
 
-//    printf("Aloca m_Nodes\n");
     igraph_vector_copy(&m_Nodes, m_Group);
 
     igraph_vector_init(used_Nodes, 1);
@@ -63,34 +61,22 @@ sol* PRIM_SG(typeNode* graph, int size_Graph, igraph_vector_t* m_Group, float n_
 
 	while(size_M_Group > 0)
 	{
-//        printf("Escolhe uma aresta\n");
         chosen_One = selection(alpha, &size_U_Nodes, graph, used_Nodes, n_Random, cost_Nodes, &bool_Change, &changed, size_Changed);
-		//printf("================================================================\n");
-//        printf("Chosen %p, Bool %d, Size CHange %d.\n", chosen_One, bool_Change, size_Changed);
-        if(size_M_Group<100){printf("Size U Nodes %d Size m group %d restricao %d, size Graph %d bool %d\n", size_U_Nodes, size_M_Group, (int)(size_Graph*0.3), size_Graph, bool_Change);}
-//	printf("wtf\n");
-		if(chosen_One == NULL){}//printf("2.\n");}
+
+//        if(size_M_Group<100){printf("Size U Nodes %d Size m group %d restricao %d, size Graph %d bool %d\n", size_U_Nodes, size_M_Group, (int)(size_Graph*0.3), size_Graph, bool_Change);}
+
+		if(chosen_One == NULL){}
 		else if(bool_Change)
 		{
-	//		printf("3.\n");
-	// 		printf("P %d C %d\n", chosen_One->parent, chosen_One->child);
-	//              printf("SIZE : %d ::::", size_Changed);
-	//        	printf("====> Aplica mudança\n");
+	
 			target_Node = find_node(solution->root, chosen_One->child);
-	//		if(size_M_Group<100){printf("TN %d P %d ", target_Node->value, target_Node->parent->value);}
-	//		printf("3.1.\n");
 			parent = find_node(solution->root, chosen_One->parent);
-	//		if(size_M_Group<100){printf("NP %d\n", parent->value);}
-	//		if(size_M_Group<100){printf("3.2.\n");}
 			cost_Nodes[chosen_One->child-1] = parent->cost + chosen_One->weight;
-	//		printf("3.3.\n");
 			apply_changes(target_Node, NULL, parent, used_Nodes, m_Group, graph, solution, chosen_One->weight, &size_U_Nodes, used_Nodes);
-	//		printf("3.4.\n");
-	//		if(size_M_Group<100){printf("Muda custos!\n");}
 			change_cost(solution, target_Node, cost_Nodes);
-	//		printf("3.5.\n");
+	
 			size_U_Nodes = igraph_vector_size(used_Nodes);
-	//		printf("3.6.\n");
+	
 			if(size_Changed == (int)(size_Graph*0.3))
 			{
 				igraph_vector_remove(&changed, 0);
@@ -99,32 +85,25 @@ sol* PRIM_SG(typeNode* graph, int size_Graph, igraph_vector_t* m_Group, float n_
 			igraph_vector_insert(&changed, size_Changed, chosen_One->child);
 			size_Changed++;
 
-	//            printf("Desaloca aresta\n");
-	//		if(size_M_Group<100){printf("Let it go!\n");}
+
 		    free(chosen_One);
 		}else
 		{
-	//	    printf("4.\n");
+
 		    parent = find_node(solution->root, chosen_One->parent);
 
 		    cost_Nodes[chosen_One->child-1] = parent->cost + chosen_One->weight;
 
-	//            printf("Acrescenta nó na árvore\n");
+
 		    solution = add_node(solution, chosen_One, used_Nodes, &m_Nodes, &size_M_Group);
 		}
-//	    printf("size Used Nodes %d\n", size_U_Nodes);
-//	    scanf("%*c");
-	//	printf("================================================================\n");
 	}
 
-    //printf("oi?");
     solution->root = prune_tree(solution, solution->root, m_Group, used_Nodes);
 
     size_U_Nodes = (int)igraph_vector_size(used_Nodes);
 
 
-//    printf("Desaloca m_Nodes  e cost_Nodes\n");
-//    scanf("%*c");
 	igraph_vector_destroy(&changed);
     igraph_vector_destroy(&m_Nodes);
     free(cost_Nodes);
@@ -197,14 +176,9 @@ sol* local_search(typeNode* graph, igraph_vector_t* m_Group, igraph_vector_t* us
                                         &size_Copy, &copy_U_Nodes);
             }
 
-            //Se houver melhora nesse vértice
-//            printf("Boolean Best %d;\n", boolean_Best);
-//            scanf("%*c");
-//            scanf("%*c");
             if(boolean_Best){index_Best = index;}
             igraph_vector_remove(&copy_U_Nodes, 0);
             size_Copy--;
-//            printf("Size = %d\n", size_Copy);
         }
 	}
 

@@ -32,7 +32,7 @@
 	typeNode* function_to_read(igraph_vector_t* m_Group, char graph_Name[], int* size_Graph); //done
 
 	void function_to_save(char graphName[], float time_in, float time_out, sol* solution, igraph_vector_t* used_Nodes,
-                        float alpha, int threads, int iter, float **info); //to do
+                        float alpha, int threads, int iter, float **info); 
 
     typeEdge* selection(float alpha, int *size_U_Nodes, typeNode* graph, igraph_vector_t* used_Nodes, float r_Number, float *cost_Nodes, int *bool_Change, igraph_vector_t* changed, int size_Changed);
 	//Sub functions
@@ -200,7 +200,7 @@ typeNode* function_to_read(igraph_vector_t* m_Group, char graph_Name[], int* siz
 
 
 void function_to_save(char graphName[], float time_in, float time_out, sol* solution, igraph_vector_t* used_Nodes,
-                        float alpha, int threads, int iter, float **info) /** toDo */
+                        float alpha, int threads, int iter, float **info) 
 {
 	FILE* new_Arc;
 	int i, s;
@@ -372,18 +372,17 @@ typeEdge* selection(float alpha, int *size_U_Nodes, typeNode* graph, igraph_vect
     for(first_Index = 0, q_Edges = 0; first_Index < *size_U_Nodes; first_Index++)
     {
         ///Take the parent
-//        printf("2\n");
         parent = (int)VECTOR(*used_Nodes)[first_Index];
-//        printf("2.1\n");
+
         igraph_vector_copy(&neighbors, &graph[parent-1].neighbors);
-//        printf("2.2\n");
+
         size_Neighborhood = graph[parent-1].size_Neighborhood;
-//        printf("2.3\n");
+
         for(second_Index = 0; second_Index < size_Neighborhood; second_Index++)
         {
-    //        printf("2.4\n");
+
             check = igraph_vector_contains(used_Nodes, VECTOR(neighbors)[0]);
-    //        printf("3\n");
+
             ///Take actual weight and child to analyze
             weight = (float)VECTOR(graph[parent-1].edge_Weight)[second_Index];
             child = (int)VECTOR(neighbors)[0];
@@ -391,10 +390,9 @@ typeEdge* selection(float alpha, int *size_U_Nodes, typeNode* graph, igraph_vect
             if(!check || (cost_Nodes[parent-1] + weight) < cost_Nodes[child-1])
             {
                 if(check && (cost_Nodes[parent-1] + weight) < cost_Nodes[child-1]){igraph_vector_insert(&exceptions, 0, child);}
-//                printf("Search 3.\n");
+
                 res_List = increase_list(res_List, q_Edges, parent, child, weight);
-//                printf("Search 3.1\n");
-        //                printf("5\n");
+
                 q_Edges++;
 //                printf("%p\n", res_List);
 //                printf("Max %f, Min %f, Wei %f\n, Max? %d, Min? %d\n", maximun, minimun, weight, (weight > maximun), (weight < minimun));
@@ -403,12 +401,10 @@ typeEdge* selection(float alpha, int *size_U_Nodes, typeNode* graph, igraph_vect
                 
                 if(weight > maximun){maximun = weight;}
                 if(weight < minimun){minimun = weight;}
-//                printf("Max At %f, Min At %f\n", maximun, minimun);
-//                if(parent == 1){printf("%d %f %f\n", (int)VECTOR(neighbors)[0], maximun, minimun);}
             }
             igraph_vector_remove(&neighbors, 0);
         }
-//        printf("2.5\n");
+
     }
 
     ///Selects some neighbors.
@@ -441,7 +437,7 @@ typeEdge* selection(float alpha, int *size_U_Nodes, typeNode* graph, igraph_vect
 				//printf("%d - ", (err <= q_New));
 			}while(pos != -1 && err <= q_New);
 		}
-//	    printf("6\n");
+
 	    if(chosen_One != NULL)
 	    {
 		    if(find_position(&exceptions, chosen_One->child) >= 0){*bool_Change = 1;}
@@ -459,11 +455,11 @@ typeEdge* selection(float alpha, int *size_U_Nodes, typeNode* graph, igraph_vect
     }
 //	printf("Alpha %f, Chosen %p\n", alpha, chosen_One);
 //    printf("BC %d\n", *bool_Change);
-    //printf("7\n");
+
     igraph_vector_destroy(&exceptions);
-	//printf("8\n");
+
     dell_edges(res_List);
-    //printf("9\n");
+
     return chosen_One;
 }
 
@@ -525,12 +521,12 @@ res* apply_changes(res* target_Node, typeEdge* new_Path, res* new_Parent, igraph
     typeEdge* run_The_Path;
 	
 	
-	if(new_Parent->value > 500 || new_Parent->value < 1)
-    {
-	    printf("Child %d\n", target_Node->value);
-	    printf("New Parent %d\n", new_Parent->value);
+//	if(new_Parent->value > 500 || new_Parent->value < 1)
+//    {
+//	    printf("Child %d\n", target_Node->value);
+//	    printf("New Parent %d\n", new_Parent->value);
 	    printf("Old Parent %d\n", aux->value);
-    }
+//    }
 //    printf("\n============================================\n");
     if(new_Path == NULL)
     {
@@ -539,15 +535,15 @@ res* apply_changes(res* target_Node, typeEdge* new_Path, res* new_Parent, igraph
         solution->total_Weight -= target_Node->weight;
         target_Node->parent = new_Parent;
 		
-		if(target_Node->parent->value > 500 || target_Node->parent->value < 1)
-        {
-        	printf("Perda Total\n");
-		    printf("Child %d\n", target_Node->value);
-		    printf("New Parent %d\n", new_Parent->value);
-		    printf("Old Parent %d\n", aux->value);
-        }
+//		if(target_Node->parent->value > 500 || target_Node->parent->value < 1)
+//        {
+//        	printf("Perda Total\n");
+//		    printf("Child %d\n", target_Node->value);
+//		    printf("New Parent %d\n", new_Parent->value);
+//		    printf("Old Parent %d\n", aux->value);
+//       }
         target_Node->cost = new_Parent->cost+edge_Weight;
-        //if(target_Node->value == 9112){printf(" N Custo %f\n", target_Node->cost);}
+
         target_Node->weight = edge_Weight;
         solution->total_Weight += target_Node->weight;
 
@@ -607,17 +603,18 @@ res* apply_changes(res* target_Node, typeEdge* new_Path, res* new_Parent, igraph
         target_Node->weight = edge_Weight;
         solution->total_Weight+=target_Node->weight;
 //        printf("Novo peso da solução %f\n", solution->total_Weight);
-//        printf("Op 014\n");
+
 //        printf("Antigo custo de %d: %f\n", target_Node->value, target_Node->cost);
         target_Node->cost = second_Aux->cost + target_Node->weight;
 //        printf("Novo custo de %d: %f\n", target_Node->value, target_Node->cost);
-		if(target_Node->parent->value > 500 || target_Node->parent->value < 1)
+/**		if(target_Node->parent->value > 500 || target_Node->parent->value < 1)
         {
         	printf("Perda Total\n");
 		    printf("Child %d\n", target_Node->value);
 		    printf("New Parent %d\n", new_Parent->value);
 		    printf("Old Parent %d\n", aux->value);
         }
+*/
     }
 
     if(new_Path!=NULL){dell_edges(new_Path);}
@@ -638,7 +635,7 @@ res* apply_changes(res* target_Node, typeEdge* new_Path, res* new_Parent, igraph
                     igraph_vector_remove(used_Nodes, pos);
 //                    printf("Node %d != children (%p) pos 1: %d\n", aux->value, aux->children, pos);
                     pos = find_position(aux_U_Nodes, aux->value);
-//                    printf(" pos 2 %d\n", pos);
+
                     if(pos > -1)
                     {
                         igraph_vector_remove(aux_U_Nodes, pos);
@@ -646,9 +643,9 @@ res* apply_changes(res* target_Node, typeEdge* new_Path, res* new_Parent, igraph
                     }
                     second_Aux = prepare_to_dell(aux);
                     solution->total_Weight-=aux->weight;
-					//printf("Uno ");
+
                     free(aux);
-                    //printf("Due\n");
+
                     aux = second_Aux;
             }
     }
@@ -697,17 +694,17 @@ typeEdge* get_path(igraph_vector_t* used_Nodes, int parent, int child, typeNode*
 	{
 	    if(execute > 0)
 		{
-//		    printf("1\n");
+
 			igraph_vector_copy(&cpy_Neighbors, &graph[current_Node-1].neighbors);
-//		    printf("2\n");
+
 			igraph_vector_copy(&cpy_Weights, &graph[current_Node-1].edge_Weight);
 		}
-//        printf("3\n");
+
 		get_min(cpy_Neighbors, cpy_Weights, &index, &mini, prev_Node);
-//        printf("4\n");
+
 		chosen = (int)VECTOR(cpy_Neighbors)[index];
 //		printf("CHOSEN ONE: %d\n", chosen);
-//        printf("5\n");
+
         if(chosen==0)
         {
             execute = 0;
@@ -715,43 +712,42 @@ typeEdge* get_path(igraph_vector_t* used_Nodes, int parent, int child, typeNode*
         }if(igraph_vector_contains(used_Nodes, chosen)){execute = 0;}
 		else if(igraph_vector_contains(&tabu_List, chosen))
 		{
-//		    		    printf("7\n");
+
 //            printf("POS: %d Index %d\n", find_position(&cpy_Neighbors, chosen), index);
 			igraph_vector_remove(&cpy_Neighbors, index);
-//					    printf("8\n");
+
 			igraph_vector_remove(&cpy_Weights, index);
 			execute = -1;
 		}else
 		{
-//		    printf("9\n");
-		    igraph_vector_insert(&tabu_List, 0, chosen);
+
+			igraph_vector_insert(&tabu_List, 0, chosen);
 		    execute = 1;
         }
 
 		if(execute >= 0)
 		{
-//		    printf("10\n");
             if(*use_Check == 1)
             {
                 weight += mini;
-    //			printf("11\n");
+
                 aux = new_edge(chosen, current_Node, mini);
-    //			printf("12\n");
-    //			printf("Aux %p Edge %p\n", aux, edge);
+
+				//			printf("Aux %p Edge %p\n", aux, edge);
                 aux->next = edge;
                 edge->prev = aux;
                 edge = aux;
-    //            printf("13\n");
+
                 current_Node = edge->parent;
                 prev_Node = edge->child;
 //                printf("Parent %d Child %d\n", current_Node, prev_Node);
             }
-//            		    printf("14\n");
+
 			igraph_vector_destroy(&cpy_Neighbors);
-//					    printf("15\n");
+
 			igraph_vector_destroy(&cpy_Weights);
 		}
-//        scanf("%*c");
+
 	}
     *cost_Path = weight;
 
@@ -805,24 +801,22 @@ sol* selects_best(igraph_vector_t nodes, igraph_vector_t weights, igraph_vector_
 
             if(use_Check)
             {
-//                printf("Usado.\n");
-                new_Parent = find_node(solution->root, new_Path->parent);
+
+				new_Parent = find_node(solution->root, new_Path->parent);
 
                 if((cost_Path + new_Parent->cost) < target_Node->cost)
                 {
-//                    printf("Não criou ciclo.\n");
-                    /**new_Parent = */apply_changes(target_Node, new_Path, new_Parent, used_Nodes, m_Group, graph, solution, min_Weight,
+
+				/**new_Parent = */apply_changes(target_Node, new_Path, new_Parent, used_Nodes, m_Group, graph, solution, min_Weight,
                                             size_Aux_U_Nodes, aux_U_Nodes);
                     *boolean_Best = 1;
                 }else
                 {
-//                    printf("Criaria ciclo. Rejeitado\n");
-                    dell_edges(new_Path);
+					dell_edges(new_Path);
                 }
             }else
             {
-//                printf("Inútil.\n");
-                dell_edges(new_Path);
+				dell_edges(new_Path);
             }
 		}
 //		printf("\n-------------------------------------------------------------------------------------\n");

@@ -8,12 +8,22 @@
 #include "grasp.h"
 #include <igraph.h>
 
-#define IT_GRASP 20
+#define IT_GRASP 40
 #define IT_LS 1
 
 /**
     gcc -fopenmp structures.h utilities.h searches.h GRASP.h main.c  -I/usr/include/igraph -L/usr/local/lib -ligraph -o TCC2
 */
+
+float sel_perc(int size_Graph)
+{
+    float percent;
+
+    if(size_Graph <= 5000){percent = 1;}
+    else{percent = 0.8;}
+
+    return 1;
+}
 
 
 void uso_grasp(typeNode *graph, int size_Graph, igraph_vector_t multicast_Group, char graph_Name[], int threads, float alpha)
@@ -23,7 +33,7 @@ void uso_grasp(typeNode *graph, int size_Graph, igraph_vector_t multicast_Group,
 
     clock_t start_Work, end_Work;
 
-    float **info;
+    float **info, percent;
     int index, index2, match=0;
     ///Performs the allocation of matrix "info" with size (IT_GRASP x 2 )
 
@@ -31,7 +41,7 @@ void uso_grasp(typeNode *graph, int size_Graph, igraph_vector_t multicast_Group,
 
     for(index = 0; index < IT_GRASP; index++){info[index] = (float*)malloc(sizeof(float)*2);}
 
-
+    percent = sel_perc(size_Graph);
     /**
     // If be necessary, to print the graph.
 
@@ -64,7 +74,7 @@ void uso_grasp(typeNode *graph, int size_Graph, igraph_vector_t multicast_Group,
 
     igraph_vector_init(&used_Nodes, 0);
 
-    solution = grasp_p(graph, &multicast_Group, IT_GRASP, IT_LS, size_Graph, threads, alpha, &used_Nodes, info);
+    solution = grasp_p(graph, &multicast_Group, IT_GRASP, IT_LS, size_Graph, threads, alpha, &used_Nodes, info, percent);
 
 
     end_Work = (double)clock();
@@ -101,19 +111,21 @@ void uso_grasp(typeNode *graph, int size_Graph, igraph_vector_t multicast_Group,
 
 void main(int argc, char *argv[])
 {
-    int i, index, size_Graph = 0;
-    float j;
+    int i, thread, index, size_Graph = 0, max;
+    float alpha;
     char graph_Name[50];
     typeNode *graph;
     igraph_vector_t multicast_Group;
 
     strcpy(graph_Name, argv[1]);
+    thread = atoi(argv[2]);
+    alpha = atof(argv[3]);
 
     graph = function_to_read(&multicast_Group, graph_Name, &size_Graph);
+
+
     ///....................................................
-    for(i=1; i<=4; i*=2)
-        for(j=0; j<=0.5; j+=0.1)
-            uso_grasp(graph, size_Graph, multicast_Group, graph_Name, i, j);
+    uso_grasp(graph, size_Graph, multicast_Group, graph_Name, thread, alpha);
 
     ///....................................................
 

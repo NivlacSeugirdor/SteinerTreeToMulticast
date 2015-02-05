@@ -11,7 +11,7 @@
 #include <igraph.h>
 #include <string.h>
 #include "structures.h"
-#define INF 99999999 /** To infinity and beyond! */
+#define INF 9999999999 /** To infinity and beyond! */
 
 
 ///Headers
@@ -258,22 +258,26 @@ void function_to_save(char graph_Name[], float time_in, float time_out, sol* sol
     fclose(new_Arc);
 }
 
+
 typeEdge* selection(float alpha, int *size_U_Nodes, typeNode* graph, igraph_vector_t* used_Nodes, float r_Number, float *cost_Nodes, int *bool_Change, igraph_vector_t* changed, int size_Changed, igraph_vector_t* m_Group)
 {
-    int members_Index, neighbors_Index;
-    int q_Edges;
-    int parent, child, q_New, err = 1, pos;
+    int members_Index, q_Edges, neighbors_Index;
+	int parent, child;
     ///--------------------------------------------------------
     float weight, maximum = 0;
-    float res = 0, minimum = INF;
+    double minimum = INF;
+	float limiter;
+	///--------------------------------------------------------
+    typeEdge* res_List = NULL;
+	///--------------------------------------------------------
+    igraph_bool_t check_Used, check;
     ///--------------------------------------------------------
-    typeEdge* res_List = NULL, *chosen_One = NULL, *aux = NULL;
-    ///--------------------------------------------------------
-    igraph_bool_t check;
-    igraph_vector_t exceptions;
-    ///--------------------------------------------------------
-    *bool_Change = 0;
-    igraph_vector_init(&exceptions, 0); /// Will contain nodes belonging to the generic tree whose parent change enables a reduction in cost of the tree.
+
+	/**
+		First step:
+			- Select all neighbors who are not in the tree (by the edges);
+			- Select the edges which allow the improvement of the cost of its respective node that is on the tree.
+	*/
 
     for(members_Index=0, q_Edges = 0; members_Index< *size_U_Nodes; members_Index++)
     {
@@ -283,55 +287,55 @@ typeEdge* selection(float alpha, int *size_U_Nodes, typeNode* graph, igraph_vect
         {
             weight = (float)VECTOR(graph[parent-1].edge_Weight)[neighbors_Index];
             child = (int)VECTOR(graph[parent-1].neighbors)[neighbors_Index];
-            check = igraph_vector_contains(used_Nodes, child);
+            check_Used = igraph_vector_contains(used_Nodes, child);
 
-            if((cost_Nodes[parent-1] + weight) <= cost_Nodes[child-1] || !check)
-            {
-                if(check){igraph_vector_insert(&exceptions, 0, child);}
+			if((cost_Nodes[parent-1] + weight) <= cost_Nodes[child-1])
+			{
+				if(check_Used)
+				{
+					check = !igraph_vector_contains(changed, child);
+				}else{check = 1;}
 
-                res_List = increase_list(res_List, q_Edges, parent, child, weight);
+				if(check)
+				{
+					res_List = increase_list(res_List, q_Edges, parent, child, weight);
+					q_Edges++;
 
-                q_Edges++;
-
-                if(weight > maximum){maximum = weight;}
-                if(weight < minimum){minimum = weight;}
-            }
+					if(weight > maximum){maximum = weight;}
+					if(weight < minimum){minimum = weight;}
+				}
+			}
         }
     }
 
-    res = minimum + alpha*(maximum-minimum);
+	limiter = minimum + alpha*(maximum-minimum);
 
-    for(aux=res_List, q_New=0; aux!=NULL; aux=aux->next){if(aux->weight <= res){q_New++;}}
+	/**
+		Second step:
+			- Defines the limit of RCL.
+	*/
 
-    if(size_Changed==0){chosen_One = get_edge(res_List, q_New, r_Number, err);}
-    else
-    {
-        do
-        {
-            chosen_One = get_edge(res_List, q_New, r_Number, err);
-            err++;
-            pos = find_position(changed, chosen_One->child);
+	int rcl_Limit = 0;
+	typeEdge* aux = NULL;
 
-            if(pos!=-1) /// The node may experience just one direct reallocation in the construction phase
-            {
-                free(chosen_One);
-                chosen_One = NULL;
-            }
-        }while(pos!=-1 && err <= q_New);
-    }
+	for(aux=res_List; aux!=NULL; aux=aux->next){if(aux->weight <= limiter){rcl_Limit++;}}
 
-    if(chosen_One!=NULL)
-    {
-        pos = find_position(&exceptions, chosen_One->child);
+    /**
+		Third step:
+			- Select a edge of the RCL.
+	*/
+	typeEdge* chosen_One = NULL;
 
-        if(pos!=-1){*bool_Change = 1;}
+	chosen_One = get_edge(res_List, rcl_Limit, r_Number, 1);
 
-    }else{chosen_One = last_resort(res_List, used_Nodes, m_Group);}
+	check_Used = igraph_vector_contains(used_Nodes, chosen_One->child);
 
-    igraph_vector_destroy(&exceptions);
-    dell_edges(res_List);
+	if(check_Used){*bool_Change = 1;}
+	else{*bool_Change = 0;}
 
-    return chosen_One;
+	dell_edges(res_List);
+
+	return chosen_One;
 }
 
 sol* selects_best(igraph_vector_t nodes, igraph_vector_t weights, igraph_vector_t *used_Nodes, igraph_vector_t *m_Group, res* target_Node, int *boolean_Best, sol* solution, typeNode* graph, int* size_Aux_U_Nodes, igraph_vector_t* aux_U_Nodes)
@@ -341,8 +345,8 @@ sol* selects_best(igraph_vector_t nodes, igraph_vector_t weights, igraph_vector_
     int size_Vector = (int)igraph_vector_size(&nodes), index_Min = -1, index;
 
     int use_Check, check, chosen;
-
-    float min_Weight = INF, cost_Path = 0;
+    float  min_Weight = INF;
+    float cost_Path = 0;
     res *new_Parent, *child;
     typeEdge *new_Path= NULL;
     *boolean_Best = 0; /// If an improvement is found, the value of this variable will be changed to 1.
@@ -480,7 +484,7 @@ res* apply_changes(res* target_Node, typeEdge* new_Path, res* new_Parent, igraph
 
 
     /// --------------- Second step
-    if(new_Path!=NULL){dell_edges(new_Path);}
+//    if(new_Path!=NULL){dell_edges(new_Path);} /// <--Line 475
 
     change_cost(solution, target_Node, cost_Nodes); /// Will update the costs of nodes descendants of target_node
 
@@ -807,7 +811,7 @@ typeEdge* last_resort(typeEdge* rcl, igraph_vector_t *used_Nodes, igraph_vector_
         check = igraph_vector_contains(used_Nodes, aux->child);
         check_MG = igraph_vector_contains(m_Group, aux->child);
 
-        if( !check && (check_MG || (aux->weight <= chosen_One->weight))
+        if( !check && (check_MG || (aux->weight <= chosen_One->weight)))
         {
             chosen_One->parent = aux->parent;
             chosen_One->child = aux->child;

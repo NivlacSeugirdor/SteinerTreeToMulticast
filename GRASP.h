@@ -12,7 +12,7 @@
 #include "searches.h"
 
 
-sol* grasp_p(typeNode* graph, igraph_vector_t* m_Group, int iter, int iter_LS, int size_Graph, int threads_GRASP, float alpha, igraph_vector_t * best_Used_Nodes, float** info)
+sol* grasp_p(typeNode* graph, igraph_vector_t* m_Group, int iter, int iter_LS, int size_Graph, int threads_GRASP, float alpha, igraph_vector_t * best_Used_Nodes, float** info, float percent)
 {
     sol* solution = NULL, *best_Solution = NULL, *aux;
     igraph_vector_t used_Nodes;
@@ -30,7 +30,7 @@ sol* grasp_p(typeNode* graph, igraph_vector_t* m_Group, int iter, int iter_LS, i
 
         igraph_vector_init(&used_Nodes, 1);
 
-		solution = prim_sg(graph, size_Graph, m_Group, r_Number, alpha, &used_Nodes);
+		solution = prim_sg(graph, size_Graph, m_Group, r_Number, alpha, &used_Nodes, percent);
 
         if(solution!=NULL)
         {

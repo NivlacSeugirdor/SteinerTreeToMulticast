@@ -45,7 +45,7 @@ typedef struct results
 typedef struct the_solution
 {
 	res* root; //The root of tree
-	float total_Weight; // Total weight of the tree
+	double total_Weight; // Total weight of the tree
 }sol;
 
 
@@ -207,6 +207,8 @@ res* prune_tree(sol* solution, res* node_Root, igraph_vector_t* m_Group, igraph_
 {
     res* current_Node = node_Root->children, *aux = NULL;
     int bool_Check, execute, pos = -1;
+
+//    if(node_Root->value == 32) printf("node: %d, check %d\n", node_Root->value, bool_Check);
 
     while(current_Node!=node_Root && current_Node!=NULL)
     {

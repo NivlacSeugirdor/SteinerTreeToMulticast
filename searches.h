@@ -10,13 +10,13 @@
 
 
 ///Headers
-sol* prim_sg(typeNode* graph, int size_Graph, igraph_vector_t* m_Group, float n_Random, float alpha, igraph_vector_t* used_Nodes);
+sol* prim_sg(typeNode* graph, int size_Graph, igraph_vector_t* m_Group, float n_Random, float alpha, igraph_vector_t* used_Nodes, float perc_Use);
 
 sol* local_search(typeNode* graph, igraph_vector_t* m_Group, igraph_vector_t* used_Nodes, int max_Iter, sol* solution);
 
 
 ///Functions
-sol* prim_sg(typeNode* graph, int size_Graph, igraph_vector_t* m_Group, float n_Random, float alpha, igraph_vector_t* used_Nodes)
+sol* prim_sg(typeNode* graph, int size_Graph, igraph_vector_t* m_Group, float n_Random, float alpha, igraph_vector_t* used_Nodes, float perc_Use)
 {
     sol* solution = new_sol();
 
@@ -60,7 +60,7 @@ sol* prim_sg(typeNode* graph, int size_Graph, igraph_vector_t* m_Group, float n_
     {
         chosen_One = selection(alpha, &size_U_Nodes, graph, used_Nodes, n_Random, cost_Nodes, &bool_Change, &changed, size_Changed, m_Group);
 
-        if(chosen_One==NULL){break;}
+        if(chosen_One==NULL){} ///Sometimes it's necessary.
         else if(bool_Change)
         {
             target_Node = find_node(solution->root, chosen_One->child);
@@ -74,9 +74,9 @@ sol* prim_sg(typeNode* graph, int size_Graph, igraph_vector_t* m_Group, float n_
 
             size_U_Nodes = igraph_vector_size(used_Nodes);
 
-            control_changes(size_U_Nodes, used_Nodes, &size_Changed, &changed);
+            //control_changes(size_U_Nodes, used_Nodes, &size_Changed, &changed);
 
-            if(size_Changed == (int)(size_Graph*0.3))
+            if(size_Changed == (int)(size_Graph*perc_Use))
 			{
 				igraph_vector_remove(&changed, 0);
 				size_Changed--;
@@ -98,20 +98,26 @@ sol* prim_sg(typeNode* graph, int size_Graph, igraph_vector_t* m_Group, float n_
         }
     }
 
-//    /**
+/**
         //to debug
-        int match = 0;
-        printf("==============\nCovered nodes:\n");
-        for(index=0; index<igraph_vector_size(m_Group); index++)
-        {
-            if(igraph_vector_contains(used_Nodes, (int)VECTOR(*m_Group)[index])){match++;printf("%d ", (int)VECTOR(*m_Group)[index]);}
-            else{printf("II %d II ", (int)VECTOR(*m_Group)[index]);}
-        }
-        printf("\nThe tree cover %d of %d members of the Multicast group.\n", match, (int)igraph_vector_size(m_Group));
+    int match = 0;
+    printf("==============\nCovered nodes:\n");
+    for(index=0; index<igraph_vector_size(m_Group); index++)
+    {
+        if(igraph_vector_contains(used_Nodes, (int)VECTOR(*m_Group)[index])){match++;printf("%d ", (int)VECTOR(*m_Group)[index]);}
+        else{printf("II %d II ", (int)VECTOR(*m_Group)[index]);}
+    }
 
-        if(match<(int)igraph_vector_size(m_Group)){scanf("%*c");}
+    if(match<(int)igraph_vector_size(m_Group))
+    {
+        printf("\nThe tree cover %d of %d members of the Multicast group.\n", match, (int)igraph_vector_size(m_Group));
+        printf("Now the tree has %d members.\n", (int)igraph_vector_size(used_Nodes));
+        scanf("%*c");
+    }
 //       */
+
     solution->root = prune_tree(solution, solution->root, m_Group, used_Nodes);
+
     /**
         //to debug
         match = 0;
@@ -134,6 +140,7 @@ sol* prim_sg(typeNode* graph, int size_Graph, igraph_vector_t* m_Group, float n_
 
 sol* local_search(typeNode* graph, igraph_vector_t* m_Group, igraph_vector_t* used_Nodes, int max_Iter, sol* solution)
 {
+
     int index, index_Best, boolean_Best = 0, root;
 	int size_Copy, current_Node, i, size_U_Nodes;
 
@@ -165,12 +172,14 @@ sol* local_search(typeNode* graph, igraph_vector_t* m_Group, igraph_vector_t* us
                     igraph_vector_copy(&neighbors_Weight, &graph[current_Node-1].edge_Weight);
                     solution = selects_best(neighbors, neighbors_Weight, used_Nodes, m_Group, target, &boolean_Best, solution, graph, &size_Copy, &copy_U_Nodes);
                 }
+
             }
 
             if(boolean_Best){index_Best = index;}
             igraph_vector_remove(&copy_U_Nodes, 0);
             size_Copy--;
         }
+
     }
 
     return solution;

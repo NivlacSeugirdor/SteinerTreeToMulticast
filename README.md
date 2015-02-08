@@ -9,6 +9,3 @@ Aluno: Calvin Rodrigues da Costa
 Orientadora: Profa. Dra. Mariá Cristina Vasconcelos Nascimento Rosset
 
 Universidade: UNIFESP
-
-======================
-Observação: O algoritmo ainda contém erros relacionados ao uso de ponteiro. Posteriormente será postada a versão corrigida do mesmo neste repositório. 
